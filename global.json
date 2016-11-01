@@ -1,0 +1,8 @@
+{
+    "projects":[
+        "BeeWeeBe.TodoApp.Api",
+        "BeeWeeBe.TodoApp.Business",
+        "BeeWeeBe.TodoApp.Contract",
+        "BeeWeeBe.TodoApp.Test"
+    ]
+}
