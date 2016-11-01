@@ -3,7 +3,7 @@ using BeeWeeBe.TodoApp.Contract.Service;
 using BeeWeeBe.TodoApp.Contract.Dto;
 using System.Threading.Tasks;
 
-namespace BeeWeeBe.TodoApp.Api.Controllers
+namespace BeeWeeBe.TodoApp.Api.ApiController
 {
     [Route("api/[controller]")]
     public class TodoController : Controller
