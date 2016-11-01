@@ -10,3 +10,10 @@
 * dotnet build
 * dotnet run
 * http://localhost:5000/api/todo
+
+## Run tests
+
+* cd BeeWeeBe.TodoApp.Test
+* dotnet restore
+* dotnet build
+* dotnet test
