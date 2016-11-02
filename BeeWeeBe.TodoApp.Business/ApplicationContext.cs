@@ -5,7 +5,7 @@ namespace BeeWeeBe.TodoApp.Business
 {
     public class ApplicationContext : DbContext
     {
-        public DbSet<Todo> Todos { get; set; }
+        public virtual DbSet<Todo> Todos { get; set; }
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options)
         {
