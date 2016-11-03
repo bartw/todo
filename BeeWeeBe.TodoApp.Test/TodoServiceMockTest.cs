@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Moq;
 using BeeWeeBe.TodoApp.Business.Entity;
 using System.Threading;
+using AutoMapper;
 
 namespace BeeWeeBe.TodoApp.Test
 {
@@ -22,7 +23,11 @@ namespace BeeWeeBe.TodoApp.Test
                 Completed = true
             };
 
-
+            var mapperConfiguration = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new AutoMapperProfileConfiguration());
+            });
+            var mapper = mapperConfiguration.CreateMapper();
             var mockOptions = new Mock<DbContextOptions<ApplicationContext>>();
             mockOptions.Setup(m => m.ContextType).Returns(typeof(ApplicationContext));
             var mockDbSet = new Mock<DbSet<Todo>>();
@@ -30,7 +35,7 @@ namespace BeeWeeBe.TodoApp.Test
             mockContext.Setup(m => m.Todos).Returns(mockDbSet.Object); 
             mockContext.Setup(m => m.SaveChangesAsync(default(CancellationToken))).Returns(() => Task.Run(() => 1)).Verifiable();
  
-            var service = new TodoService(mockContext.Object); 
+            var service = new TodoService(mockContext.Object, mapper); 
             var createdTodo = await service.Create(todo); 
  
             mockDbSet.Verify(m => m.Add(It.IsAny<Todo>()), Times.Once()); 

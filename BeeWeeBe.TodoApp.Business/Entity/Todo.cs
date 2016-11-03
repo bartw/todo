@@ -6,5 +6,12 @@ namespace BeeWeeBe.TodoApp.Business.Entity
         public string Title { get; set; }
         public string Description { get; set; }
         public bool Completed { get; set; }
+
+        public void Update(Todo todo)
+        {
+            Title = todo.Title;
+            Description = todo.Description;
+            Completed = todo.Completed;
+        }
     }
 }

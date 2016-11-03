@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 
 namespace BeeWeeBe.TodoApp.Test
 {
@@ -19,10 +20,21 @@ namespace BeeWeeBe.TodoApp.Test
             return builder.Options;
         }
 
+        private static IMapper CreateMapper()
+        {
+            var mapperConfiguration = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new AutoMapperProfileConfiguration());
+            });
+            var mapper = mapperConfiguration.CreateMapper();
+            return mapper;
+        }
+
         [Fact]
         public async Task GivenAValidTodoDto_WhenCreate_ThenANewTodoIsCreated()
         {
             var options = CreateNewContextOptions();
+            var mapper = CreateMapper();
 
             var todo = new TodoDto
             {
@@ -33,7 +45,7 @@ namespace BeeWeeBe.TodoApp.Test
 
             using (var context = new ApplicationContext(options))
             {
-                var service = new TodoService(context);
+                var service = new TodoService(context, mapper);
 
                 var createdTodo = await service.Create(todo);
 

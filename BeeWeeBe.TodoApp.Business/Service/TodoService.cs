@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using BeeWeeBe.TodoApp.Business.Entity;
 using BeeWeeBe.TodoApp.Contract.Dto;
 using BeeWeeBe.TodoApp.Contract.Service;
@@ -12,17 +12,19 @@ namespace BeeWeeBe.TodoApp.Business.Service
     public class TodoService : ITodoService
     {
         private readonly ApplicationContext _context;
+        private readonly IMapper _mapper;
 
-        public TodoService(ApplicationContext context)
+        public TodoService(ApplicationContext context, IMapper mapper)
         {
             _context = context;
+            _mapper = mapper;
         }
         public async Task<TodoDto> Create(TodoDto todoDto)
         {
-            var todo = Map(todoDto);
+            var todo = _mapper.Map<Todo>(todoDto);
             _context.Todos.Add(todo);
             await _context.SaveChangesAsync();
-            return Map(todo);
+            return _mapper.Map<TodoDto>(todo);
         }
 
         public async Task Delete(int id)
@@ -38,65 +40,30 @@ namespace BeeWeeBe.TodoApp.Business.Service
 
         public async Task<TodoDto> Get(int id)
         {
-            return Map(await Find(id));
+            return _mapper.Map<TodoDto>(await Find(id));
         }
 
         public async Task<IEnumerable<TodoDto>> GetAll()
         {
             var todos = await _context.Todos.ToListAsync();
-            return todos.Select(todo => Map(todo));
+            return _mapper.Map<IEnumerable<TodoDto>>(todos);
         }
 
-        public async Task Update(int id, TodoDto todo)
+        public async Task Update(int id, TodoDto todoDto)
         {
             var existingTodo = await Find(id);
-
             if (existingTodo == null)
             {
                 throw new Exception("Not found");
             }
-
-            existingTodo.Title = todo.Title;
-            existingTodo.Description = todo.Description;
-            existingTodo.Completed = todo.Completed;
+            var todo = _mapper.Map<Todo>(todoDto);
+            existingTodo.Update(todo);
             await _context.SaveChangesAsync();
         }
 
         private async Task<Todo> Find(int id)
         {
             return await _context.Todos.FirstOrDefaultAsync(t => t.Id == id);
-        }
-
-        private TodoDto Map(Todo todo)
-        {
-            if (todo == null)
-            {
-                return null;
-            }
-
-            return new TodoDto
-            {
-                Id = todo.Id,
-                Title = todo.Title,
-                Description = todo.Description,
-                Completed = todo.Completed
-            };
-        }
-
-        private Todo Map(TodoDto todo)
-        {
-            if (todo == null)
-            {
-                return null;
-            }
-            
-            return new Todo
-            {
-                Id = todo.Id,
-                Title = todo.Title,
-                Description = todo.Description,
-                Completed = todo.Completed
-            };
         }
     }
 }

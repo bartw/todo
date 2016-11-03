@@ -8,33 +8,26 @@ using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using System.Text;
 using Newtonsoft.Json;
+using System.Threading.Tasks;
+using AutoMapper;
 
 namespace BeeWeeBe.TodoApp.Api
 {
     public class Startup
     {
+        private MapperConfiguration _mapperConfiguration { get; set; }
+
+        public Startup()
+        {
+            _mapperConfiguration = new MapperConfiguration(cfg =>
+            {
+                cfg.AddProfile(new AutoMapperProfileConfiguration());
+            });
+        }
+
         public void Configure(IApplicationBuilder app)
         {
-            app.UseExceptionHandler(errorApp =>
-            {
-                errorApp.Run(async context =>
-                {
-                    context.Response.StatusCode = 500;
-                    context.Response.ContentType = "application/json";
-
-                    var error = context.Features.Get<IExceptionHandlerFeature>();
-                    if (error != null)
-                    {
-                        var ex = error.Error;
-
-                        await context.Response.WriteAsync(JsonConvert.SerializeObject(new
-                        {
-                            Code = 500,
-                            Message = ex.Message
-                        }), Encoding.UTF8);
-                    }
-                });
-            });
+            app.UseExceptionHandler(errorApp => errorApp.Run(async context => await HandleException(context)));
             app.UseMvc();
 
             EnsureDatabase(app);
@@ -44,6 +37,7 @@ namespace BeeWeeBe.TodoApp.Api
         {
             services.AddMvc();
             services.AddDbContext<ApplicationContext>(options => options.UseSqlite("Filename=./todo.db"));
+            services.AddSingleton<IMapper>(sp => _mapperConfiguration.CreateMapper());
             services.AddTransient<ITodoService, TodoService>();
         }
 
@@ -53,6 +47,25 @@ namespace BeeWeeBe.TodoApp.Api
             {
                 serviceScope.ServiceProvider.GetService<ApplicationContext>().Database.EnsureCreated();
                 serviceScope.ServiceProvider.GetService<ApplicationContext>().Database.Migrate();
+            }
+        }
+
+        private async Task HandleException(HttpContext context)
+        {
+            var exceptionHandler = context.Features.Get<IExceptionHandlerFeature>();
+
+            context.Response.StatusCode = 500;
+            context.Response.ContentType = "application/json";
+
+            if (exceptionHandler != null)
+            {
+                var exception = exceptionHandler.Error;
+
+                await context.Response.WriteAsync(JsonConvert.SerializeObject(new
+                {
+                    Code = 500,
+                    Message = exception.Message
+                }), Encoding.UTF8);
             }
         }
     }

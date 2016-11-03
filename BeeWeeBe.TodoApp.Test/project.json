@@ -12,6 +12,7 @@
     "BeeWeeBe.TodoApp.Contract": "1.0.0-*",
     "BeeWeeBe.TodoApp.Business": "1.0.0-*",
     "BeeWeeBe.TodoApp.Api": "1.0.0-*",
+    "AutoMapper": "5.1.1"
   },
   "frameworks": {
     "netcoreapp1.1": {

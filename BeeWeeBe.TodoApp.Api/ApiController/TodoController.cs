@@ -10,9 +10,9 @@ namespace BeeWeeBe.TodoApp.Api.ApiController
     {
         private readonly ITodoService _todoService;
 
-        public TodoController (ITodoService todoService)
+        public TodoController(ITodoService todoService)
         {
-          _todoService = todoService;
+            _todoService = todoService;
         }
 
         [HttpGet]
@@ -23,34 +23,32 @@ namespace BeeWeeBe.TodoApp.Api.ApiController
         }
 
         [HttpGet("{id}")]
-        public  async Task<IActionResult> Get(int id)
+        public async Task<IActionResult> Get(int id)
         {
             var todo = await _todoService.Get(id);
-
             if (todo == null)
             {
                 return NotFound();
             }
-
             return Ok(todo);
         }
 
         [HttpPost]
-        public  async Task<IActionResult> Post([FromBody]TodoDto todoToCreate)
+        public async Task<IActionResult> Post([FromBody]TodoDto todoToCreate)
         {
             var createdTodo = await _todoService.Create(todoToCreate);
             return CreatedAtAction("Get", new { id = createdTodo.Id }, createdTodo);
         }
 
         [HttpPut("{id}")]
-        public  async Task<IActionResult> Put(int id, [FromBody]TodoDto todoToUpdate)
+        public async Task<IActionResult> Put(int id, [FromBody]TodoDto todoToUpdate)
         {
             await _todoService.Update(id, todoToUpdate);
             return Ok();
         }
 
         [HttpDelete("{id}")]
-        public  async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
             await _todoService.Delete(id);
             return Ok();
